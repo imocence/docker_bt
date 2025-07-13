@@ -139,6 +139,8 @@ Install_Bt(){
 	mkdir -p /www/wwwlogs
 	mkdir -p /www/backup/database
 	mkdir -p /www/backup/site
+	chattr +i /www/server/panel/data/plugin.json
+	chattr +i /www/server/panel/data/repair.json
 
 	if [ ! -d "/etc/init.d" ];then
 		mkdir -p /etc/init.d
