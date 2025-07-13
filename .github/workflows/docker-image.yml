@@ -2,7 +2,7 @@ name: Docker Image CI
 on:
   workflow_dispatch:
     inputs:
-      push_name:
+      tag_name:
         description: 'Image_tag NAME'
         required: true
         default: 'v7.7.0'
@@ -10,10 +10,10 @@ on:
 jobs:
 
   build:
-
-    runs-on: ubuntu-latest
-
+    name: Build Images
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag imocence/bt:${{ github.event.inputs.image_name }}
+      run: docker build . --file Dockerfile --tag imocence/bt:${{ github.event.inputs.tag_name }}
