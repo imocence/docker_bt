@@ -74,6 +74,7 @@ Set_Ssl(){
 
 Install_Python_Lib(){
 	echo "=================================================="
+  wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-debian12-x64.tar.gz" |tar -zxf - -C /www/server/panel
 	chmod +x $pyenv_path/bin/*
     if command -v $pyenv_path/bin/python3 &> /dev/null; then
 		ln -sf $pyenv_path/bin/python3 /usr/bin/btpython
