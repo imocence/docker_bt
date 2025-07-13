@@ -1,0 +1,12 @@
+version: '2'
+services:
+  web:
+    image: imocence/bt:v7.7.0
+    container_name: bt_cn
+    network_mode: bridge
+    ports:
+      - "2021:21"
+      - "2080:80"
+      - "2443:443"
+      - "8888:8888"
+    restart: unless-stopped

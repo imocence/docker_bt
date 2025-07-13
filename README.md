@@ -1,2 +1,17 @@
 # docker_bt
 The warehouse used to generate baota mirrors
+用来生成宝塔镜像的仓库
+
+
+### 安装环境
+    
+    # 生成镜像命令
+    $ docker build -f Dockerfile -t imocence/bt:v7.7.0 .
+
+    # 启动方法
+
+    ## 生成并运行一个新的容器：
+    $ docker run --name bt_cn -it imocence/bt:v7.7.0 /bin/sh
+
+    ## 方法二，使用docker-compose.yml启动
+    $ docker-compose up -d
