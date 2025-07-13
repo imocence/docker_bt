@@ -7,8 +7,7 @@ MAINTAINER imocence
 # Specify the working directory
 WORKDIR /www/server
 
-ADD panel.tar.gz /www/server/
-ADD panel.tar.gz /www/server/
+ADD LinuxPanel-7.7.0.tar.gz /www/server/
 COPY install_bt.sh /www/server/
 
 RUN chmod +x /www/server/install_bt.sh && echo y |bash /www/server/install_bt.sh
