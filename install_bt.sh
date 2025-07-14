@@ -76,24 +76,24 @@ Install_Python_Lib(){
 	echo "=================================================="
   wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-debian12-x64.tar.gz" |tar -zxf - -C /www/server/panel
 	chmod +x $pyenv_path/bin/*
-    if command -v $pyenv_path/bin/python3 &> /dev/null; then
-		ln -sf $pyenv_path/bin/python3 /usr/bin/btpython
-        echo "python3 已安装！"
-    else
-        echo "未找到 Python 环境，开始安装 Python！"
-        sudo apt update && apt install python3 -y
-    fi
+  if command -v $pyenv_path/bin/python3 &> /dev/null; then
+  ln -sf $pyenv_path/bin/python3 /usr/bin/btpython
+      echo "python3 已安装！"
+  else
+      echo "未找到 Python 环境，开始安装 Python！"
+      sudo apt update && apt install python3 -y
+  fi
 
-    if command -v $pyenv_path/bin/pip3 &> /dev/null || command -v pip &> /dev/null; then
-    	ln -sf $pyenv_path/bin/pip3 /usr/bin/btpip
-        echo "pip 已安装！"
-    else
-    	echo "未找到 pip 环境，开始安装 Python！"
-        apt install python3-pip -y
-    fi
+  if command -v $pyenv_path/bin/pip3 &> /dev/null || command -v pip &> /dev/null; then
+    ln -sf $pyenv_path/bin/pip3 /usr/bin/btpip
+      echo "pip 已安装！"
+  else
+    echo "未找到 pip 环境，开始安装 Python！"
+      apt install python3-pip -y
+  fi
 
-    if [[ -f "/usr/bin/python" || -f "/usr/bin/python3" ]];then
-	    rm -f /usr/bin/python /usr/bin/python3
+  if [[ -f "/usr/bin/python" || -f "/usr/bin/python3" ]];then
+    rm -f /usr/bin/python /usr/bin/python3
 	fi
 	ln -sf $pyenv_path/bin/python3 /usr/bin/python
 	ln -sf $pyenv_path/bin/python3 /usr/bin/python3
@@ -139,8 +139,8 @@ Install_Bt(){
 	mkdir -p /www/wwwlogs
 	mkdir -p /www/backup/database
 	mkdir -p /www/backup/site
-	chattr +i /www/server/panel/data/plugin.json
-	chattr +i /www/server/panel/data/repair.json
+	chmod 444 /www/server/panel/data/plugin.json
+	chmod 444 /www/server/panel/data/repair.json
 
 	if [ ! -d "/etc/init.d" ];then
 		mkdir -p /etc/init.d
