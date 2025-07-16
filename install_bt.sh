@@ -32,30 +32,63 @@ Install_Check(){
 	INSTALL_FORCE="true"
 }
 
+Get_Pack_Manager(){
+	if [ -f "/usr/bin/yum" ] && [ -d "/etc/yum.repos.d" ]; then
+		PM="yum"
+	elif [ -f "/usr/bin/apt-get" ] && [ -f "/usr/bin/dpkg" ]; then
+		PM="apt-get"
+	fi
+}
+
 System_Check(){
-	if [ -f "/etc/apt/sources.list.d/debian.sources" ];then
-	  sed -i "s^http://deb.debian.org^http://mirrors.tuna.tsinghua.edu.cn^g" /etc/apt/sources.list.d/debian.sources
-	else
-	  sed -i "s^http://deb.debian.org^http://mirrors.tuna.tsinghua.edu.cn^g" /etc/apt/sources.list
-	fi
-	if command -v timedatectl &> /dev/null; then
-		timedatectl set-timezone Asia/Shanghai
-		timedatectl set-ntp true
-		timedatectl status
-	fi
-	apt update
-	apt install -y procps wget curl libcurl4-openssl-dev gcc make unzip tar openssl libssl-dev gcc libxml2 libxml2-dev zlib1g
-	apt install -y zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev
-	apt install -y libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev
-	apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog net-tools
-	if [ ! -d '/etc/letsencrypt' ];then
-		mkdir -p /etc/letsencryp
-		mkdir -p /var/spool/cron
-		if [ ! -f '/var/spool/cron/crontabs/root' ];then
-			echo '' > /var/spool/cron/crontabs/root
-			chmod 600 /var/spool/cron/crontabs/root
-		fi
-	fi
+  echo "========================== Update software source =========================="
+	if [ "${PM}" = "apt-get" ]; then
+	  if [ -f "/etc/apt/sources.list.d/debian.sources" ];then
+      sed -i "s^http://deb.debian.org^http://mirrors.tuna.tsinghua.edu.cn^g" /etc/apt/sources.list.d/debian.sources
+    else
+      sed -i "s^http://deb.debian.org^http://mirrors.tuna.tsinghua.edu.cn^g" /etc/apt/sources.list
+    fi
+    if command -v timedatectl &> /dev/null; then
+      timedatectl set-timezone Asia/Shanghai
+      timedatectl set-ntp true
+      timedatectl status
+    fi
+    apt update
+    apt install -y procps wget curl libcurl4-openssl-dev gcc make unzip tar openssl libssl-dev gcc libxml2 libxml2-dev zlib1g
+    apt install -y zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev
+    apt install -y libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev
+    apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog net-tools
+    if [ ! -d '/etc/letsencrypt' ];then
+      mkdir -p /etc/letsencryp
+      mkdir -p /var/spool/cron
+      if [ ! -f '/var/spool/cron/crontabs/root' ];then
+        echo '' > /var/spool/cron/crontabs/root
+        chmod 600 /var/spool/cron/crontabs/root
+      fi
+    fi
+  else
+    VER_ID=$(grep 'VERSION_ID' /etc/os-release | cut -d '"' -f 2)
+    if [ $VER_ID -eq 8 ];then
+      sudo sed -i 's/mirror.centos.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/yum.repos.d/CentOS-AppStream.repo
+      sudo sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-AppStream.repo
+      sudo sed -i 's/#baseurl/baseurl/g' /etc/yum.repos.d/CentOS-AppStream.repo
+      sudo sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/CentOS-Extras.repo
+    else
+      if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.bak" ];then
+        cp /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
+      fi
+      sed -i 's|^mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-Base.repo
+      sed -i 's|^#baseurl=|baseurl=|g' /etc/yum.repos.d/CentOS-Base.repo
+      RELEASE_VER=$(grep -oP '(?<=release )\d+\.\d+\.\d+' /etc/centos-release)
+      sed -i "s|mirror.centos.org/centos/\$releasever|mirrors.tuna.tsinghua.edu.cn/centos-vault/$RELEASE_VER|g" /etc/yum.repos.d/CentOS-Base.repo
+    fi
+    yum makecache
+    yum install -y bzip2-devel c-ares crontabs db4-devel freetype gcc gdbm-devel icu libcurl-devel libffi-devel libicu-devel
+    yum install -y libjpeg-devel libpcap-devel libpng-devel libwebp libxml2 libxslt* lsof make mariadb ncurses-devel net-tools
+    yum install -y openssl pcre qrencode readline-devel rsyslog sqlite-devel tk-devel unzip vixie-cron wget xz-devel zlib zlib-devel
+    yum clean all
+  fi
+  echo "========================== Check LNMP environment =========================="
 	MYSQLD_CHECK=$(ps -ef |grep mysqld|grep -v grep|grep -v /www/server/mysql)
 	PHP_CHECK=$(ps -ef|grep php-fpm|grep master|grep -v /www/server/php)
 	NGINX_CHECK=$(ps -ef|grep nginx|grep master|grep -v /www/server/nginx)
@@ -73,43 +106,52 @@ Set_Ssl(){
 }
 
 Install_Python_Lib(){
-	echo "=================================================="
-  wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-debian12-x64.tar.gz" |tar -zxf - -C /www/server/panel
+	echo "========================== Check python environment =========================="
+	echo "setting python"
+	if [ "${PM}" = "apt-get" ]; then
+	  wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-debian12-x64.tar.gz" |tar -zxf - -C /www/server/panel
+	else
+	  wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-el7-x64.tar.gz" |tar -zxf - -C /www/server/panel
+	fi
 	chmod +x $pyenv_path/bin/*
   if command -v $pyenv_path/bin/python3 &> /dev/null; then
   ln -sf $pyenv_path/bin/python3 /usr/bin/btpython
-      echo "python3 已安装！"
+    echo "python3 已安装！"
   else
-      echo "未找到 Python 环境，开始安装 Python！"
-      sudo apt update && apt install python3 -y
+    echo "未找到 Python 环境，开始安装 Python！"
+    if [ "${PM}" = "apt-get" ]; then
+      apt update && apt install python3 -y
+    else
+      yum install python3 -y
+    fi
   fi
-
-  if command -v $pyenv_path/bin/pip3 &> /dev/null || command -v pip &> /dev/null; then
+  if [ -f "/usr/bin/python3" ];then
+    rm -f /usr/bin/python3
+	fi
+	ln -sf $pyenv_path/bin/python3 /usr/bin/python3
+  echo "setting pip"
+  if command -v $pyenv_path/bin/pip3 &> /dev/null || command -v pip3 &> /dev/null; then
     ln -sf $pyenv_path/bin/pip3 /usr/bin/btpip
-      echo "pip 已安装！"
+    echo "pip 已安装！"
   else
     echo "未找到 pip 环境，开始安装 Python！"
+    if [ "${PM}" = "apt-get" ]; then
       apt install python3-pip -y
-  fi
-
-  if [[ -f "/usr/bin/python" || -f "/usr/bin/python3" ]];then
-    rm -f /usr/bin/python /usr/bin/python3
-	fi
-	ln -sf $pyenv_path/bin/python3 /usr/bin/python
-	ln -sf $pyenv_path/bin/python3 /usr/bin/python3
-
-	if [[ -f "/usr/bin/pip" || -f "/usr/bin/pip3" ]];then
-      rm -f /usr/bin/pip /usr/bin/pip3
-    fi
-    ln -sf $pyenv_path/bin/pip3 /usr/bin/pip
-    ln -sf $pyenv_path/bin/pip3 /usr/bin/pip3
-
-    if pip config list | grep -q 'pypi.tuna.tsinghua.edu.cn'; then
-        echo "pip 已配置清华源"
     else
-	    pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-	    pip3 config set global.break-system-packages true
-	    pip3 config set global.trusted-host pypi.tuna.tsinghua.edu.cn
+      yum install python3-pip -y
+    fi
+  fi
+	if [ -f "/usr/bin/pip3" ];then
+    rm /usr/bin/pip3
+  fi
+  echo "setting pip source for tsinghua"
+  ln -sf $pyenv_path/bin/pip3 /usr/bin/pip3
+  if pip3 config list | grep -q 'pypi.tuna.tsinghua.edu.cn'; then
+      echo "pip3 已配置清华源"
+  else
+    pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+    pip3 config set global.break-system-packages true
+    pip3 config set global.trusted-host pypi.tuna.tsinghua.edu.cn
 	fi
   
 	echo "True" > /www/disk.pl
@@ -259,14 +301,6 @@ Set_Bt_Panel(){
     fi
 }
 
-Get_Pack_Manager(){
-	if [ -f "/usr/bin/yum" ] && [ -d "/etc/yum.repos.d" ]; then
-		PM="yum"
-	elif [ -f "/usr/bin/apt-get" ] && [ -f "/usr/bin/dpkg" ]; then
-		PM="apt-get"
-	fi
-}
-
 Set_Firewall(){
 	sshPort=$(cat /etc/ssh/sshd_config | grep 'Port '|awk '{print $2}')
 	if [ "${PM}" = "apt-get" ]; then
@@ -305,7 +339,7 @@ Set_Firewall(){
 			if [ "${iptables_status}" == '' ];then
 				service iptables restart3
 			fi
-		eles
+		else
 			AliyunCheck=$(cat /etc/redhat-release|grep "Aliyun Linux")
 			[ "${AliyunCheck}" ] && return
 			yum install firewalld -y
@@ -385,19 +419,23 @@ Start_Count(){
 }
 
 Install_Main(){
+  Get_Pack_Manager
   Set_Ssl
   System_Check
-  Get_Pack_Manager
 	Install_Python_Lib
 	Install_Bt
 	
 	Set_Bt_Panel
-	update-rc.d bt defaults
+	if command -v systemctl >/dev/null; then
+    systemctl enable bt
+	else
+	  update-rc.d bt defaults
+	fi
 	Set_Firewall
 
 	Get_Ip_Address
 	Setup_Count ${IDC_CODE}
-	pip cache purge
+	pip3 cache purge
 }
 
 echo "
