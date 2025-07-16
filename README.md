@@ -2,6 +2,11 @@
 The warehouse used to generate baota mirrors
 用来生成宝塔镜像的仓库
 
+跳过首页登录账户
+```
+sed -i "s|if (bind_user == 'True') {|if (bind_user == 'REMOVED') {|g" /www/server/panel/BTPanel/static/js/index.js
+```
+
 
 ### 安装环境
     

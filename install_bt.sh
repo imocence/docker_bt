@@ -111,7 +111,8 @@ Install_Python_Lib(){
 	if [ "${PM}" = "apt-get" ]; then
 	  wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-debian12-x64.tar.gz" |tar -zxf - -C /www/server/panel
 	else
-	  wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-el7-x64.tar.gz" |tar -zxf - -C /www/server/panel
+	  #wget -nv -O - "https://download.bt.cn/install/pyenv/pyenv-el7-x64.tar.gz" |tar -zxf - -C /www/server/panel
+	  wget -nv -O - "https://gitee.com/imocence/quicken/releases/download/v4/pyenv-el7-x64.tar.gz" |tar -zxf - -C /www/server/panel
 	fi
 	chmod +x $pyenv_path/bin/*
   if command -v $pyenv_path/bin/python3 &> /dev/null; then
@@ -534,7 +535,15 @@ echo "Start time: $startTime"
 
 Install_Main
 
-apt clean && rm -rf /var/cache/apt/archives/*
+if [ "${PM}" = "apt-get" ]; then
+  apt clean && rm -rf /var/cache/apt/archives/*
+else
+  if command -v dnf >/dev/null; then
+    dnf clean all && rm -rf /var/cache/dnf
+  else
+    yum clean all && rm -rf /var/cache/yum
+  fi
+fi
 
 PANEL_SSL=$(cat /www/server/panel/data/ssl.pl 2> /dev/null)
 if [ "${PANEL_SSL}" == "True" ];then
