@@ -358,18 +358,14 @@ Set_Firewall(){
 	fi
 }
 
-get_ip(){
-	wget -qO- --timeout=60 --tries=1 --connect-timeout=10 https://www.bt.cn/Api/getIpAddress
-}
-
 Get_Ip_Address(){
-	getIpAddress="$get_ip"
+	getIpAddress=$(wget -qO- --timeout=60 --tries=1 --connect-timeout=10 https://www.bt.cn/Api/getIpAddress)
 	if [ -z "${getIpAddress}" ] || [ "${getIpAddress}" = "0.0.0.0" ]; then
 		isHosts=$(cat /etc/hosts|grep 'www.bt.cn')
 		if [ -z "${isHosts}" ];then
 			echo "" >> /etc/hosts
 			echo "116.213.43.206 www.bt.cn" >> /etc/hosts
-			getIpAddress="$get_ip"
+			getIpAddress=$(wget -qO- --timeout=60 --tries=1 --connect-timeout=10 https://www.bt.cn/Api/getIpAddress)
 			if [ -z "${getIpAddress}" ];then
 				sed -i "/bt.cn/d" /etc/hosts
 			fi
