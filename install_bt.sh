@@ -57,7 +57,7 @@ System_Check(){
     apt install -y procps wget curl libcurl4-openssl-dev gcc make unzip tar openssl libssl-dev gcc libxml2 libxml2-dev zlib1g
     apt install -y zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev
     apt install -y libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev
-    apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog net-tools
+    apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog iproute2
     if [ ! -d '/etc/letsencrypt' ];then
       mkdir -p /etc/letsencryp
       mkdir -p /var/spool/cron
@@ -83,7 +83,7 @@ System_Check(){
       sed -i "s|mirror.centos.org/centos/\$releasever|mirrors.tuna.tsinghua.edu.cn/centos-vault/$RELEASE_VER|g" /etc/yum.repos.d/CentOS-Base.repo
     fi
     yum makecache
-    yum install -y bzip2-devel c-ares crontabs db4-devel freetype gcc gdbm-devel icu libcurl-devel libffi-devel libicu-devel
+    yum install -y bzip2-devel c-ares crontabs db4-devel freetype gcc gdbm-devel icu iproute libcurl-devel libffi-devel libicu-devel
     yum install -y libjpeg-devel libpcap-devel libpng-devel libwebp libxml2 libxslt* lsof make mariadb ncurses-devel net-tools
     yum install -y openssl pcre qrencode readline-devel rsyslog sqlite-devel tk-devel unzip vixie-cron wget xz-devel zlib zlib-devel
     yum clean all
