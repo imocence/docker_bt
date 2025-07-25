@@ -171,7 +171,7 @@ Install_Bt(){
   if [ -d "${setup_path}/server/panel/install" ]; then
       echo "安装文件存在!!"
   else
-      wget -nv -O - "https://github.com/imocence/docker_bt/commits/main/LinuxPanel-7.7.0.tar.gz" |tar -zxf - -C /www/server/panel
+      wget -nv -O - "https://github.com/imocence/docker_bt/releases/download/release-v7.7.0/LinuxPanel-7.7.0.tar.gz" |tar -zxf - -C /www/server/panel
   fi
 	if [ -f ${setup_path}/server/panel/data/port.pl ];then
 		panelPort=$(cat ${setup_path}/server/panel/data/port.pl)
