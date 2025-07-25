@@ -3,6 +3,7 @@ FROM debian:12-slim
 # Image creator
 MAINTAINER imocence
 # Set environment variables (avoid interactive installation prompts)
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LC_ALL=C.UTF-8 TZ=Asia/Shanghai
 #ENV DEBIAN_FRONTEND=noninteractive
 # Specify the working directory
 WORKDIR /www/server

@@ -57,7 +57,7 @@ System_Check(){
     apt install -y procps wget curl libcurl4-openssl-dev gcc make unzip tar openssl libssl-dev gcc libxml2 libxml2-dev zlib1g
     apt install -y zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev
     apt install -y libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev
-    apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog iproute2 locales
+    apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog iproute2 locales autoconf automake libtool m4 libonig5
     if [ ! -d '/etc/letsencrypt' ];then
       mkdir -p /etc/letsencryp
       mkdir -p /var/spool/cron
@@ -168,6 +168,11 @@ Install_Python_Lib(){
 }
 
 Install_Bt(){
+  if [ -d "${setup_path}/server/panel/install" ]; then
+      echo "安装文件存在!!"
+  else
+      wget -nv -O - "https://github.com/imocence/docker_bt/commits/main/LinuxPanel-7.7.0.tar.gz" |tar -zxf - -C /www/server/panel
+  fi
 	if [ -f ${setup_path}/server/panel/data/port.pl ];then
 		panelPort=$(cat ${setup_path}/server/panel/data/port.pl)
 	fi
@@ -415,6 +420,16 @@ Start_Count(){
 	echo "check_certificate = off" >> /etc/wgetrc 
 }
 
+function touch_ltd() {
+    if [[ -f /www/server/panel/data/install_ltd.pl ]]; then
+        chattr -i /www/server/panel/data/install_ltd.pl
+        rm -f /www/server/panel/data/install_ltd.pl
+    fi
+    touch /www/server/panel/data/install_ltd.pl
+    echo "install_ltd" > /www/server/panel/data/install_ltd.pl
+    chattr +i /www/server/panel/data/install_ltd.pl
+}
+
 Install_Main(){
   Get_Pack_Manager
   Set_Ssl
@@ -518,14 +533,6 @@ if [ "${ARCH_LINUX}" ] && [ -f "/usr/bin/pacman" ];then
 	pacman -S curl wget unzip firewalld openssl pkg-config make gcc cmake libxml2 libxslt libvpx gd libsodium oniguruma sqlite libzip autoconf inetutils sudo --noconfirm
 fi
 
-CURL_CHECK=$(which curl)
-if [ "$?" == "0" ] && [ ! -f "/tmp/btpanel_err.pl" ];then
-	getIpAddress=$(curl -sS --connect-timeout 10 -m 60 https://www.bt.cn/Api/getIpAddress)
-	INSTALL_DATE=$(date +%Y%m%d)
-	curl -sS --connect-timeout 3 -m 3 --request POST --url "https://www.bt.cn/Api/installationCount" --data "date=${INSTALL_DATE}" --data "status=0" --data "ip=${getIpAddress}" > /dev/null
-fi
-
-
 startTime=$(date +%s)
 echo "Start time: $startTime"
 
@@ -585,8 +592,4 @@ if [ "${outTime}" == "0" ];then
   echo -e "Time consumed:\033[32m $outTime \033[0mseconds!"
 else
   echo -e "Time consumed:\033[32m $outTime \033[0mMinute!"
-fi
-getIpAddress=$(echo ${getIpAddress}|tr -d "[]")
-if [ "${INSTALL_DATE}" ];then
-  curl -sS --connect-timeout 10 -m 10 --request POST --url "https://www.bt.cn/Api/installationCount" --data "date=${INSTALL_DATE}" --data "status=1" --data "ip=${getIpAddress}" > /dev/null
 fi
