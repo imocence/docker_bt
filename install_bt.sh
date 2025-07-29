@@ -225,7 +225,11 @@ Set_Bt_Panel(){
 	wwwUser=$(cat /etc/passwd|cut -d ":" -f 1|grep ^www$)
 	if [ "${wwwUser}" != "www" ];then
 		groupadd ${Run_User}
-		useradd -s /sbin/nologin -g ${Run_User} ${Run_User}
+		useradd -m -d /www -s /sbin/nologin -g ${Run_User} ${Run_User}
+		mkdir -p /www/.config/composer
+		echo "{}" > /www/.config/composer/composer.json
+		chown -R ${Run_User}:${Run_User} /www
+		mkdir -p /root/.config/composer && echo "{}" > /root/.config/composer/composer.json
 	fi
 
 	password='a123456'
