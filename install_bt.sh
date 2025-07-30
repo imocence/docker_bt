@@ -56,7 +56,7 @@ System_Check(){
     apt update
     apt install -y autoconf automake procps wget curl libcurl4-openssl-dev gcc make unzip tar openssl libssl-dev gcc libxml2 libxml2-dev
     apt install -y zlib1g zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev
-    apt install -y libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev
+    apt install -y libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev libzip-dev
     apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog iproute2 locales libtool m4 libonig5 libsodium23
     if [ ! -d '/etc/letsencrypt' ];then
       mkdir -p /etc/letsencryp
