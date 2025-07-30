@@ -5,6 +5,7 @@ The warehouse used to generate baota mirrors
 跳过首页登录账户
 ```
 sed -i "s|if (bind_user == 'True') {|if (bind_user == 'REMOVED') {|g" /www/server/panel/BTPanel/static/js/index.js
+rm -f /www/server/panel/data/bind.pl
 ```
 
 

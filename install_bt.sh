@@ -580,8 +580,6 @@ echo -e " 内网面板地址: ${HTTP_S}://${LOCAL_IP}:${panelPort}${auth_path}"
 echo -e " username: $username"
 echo -e " password: $password"
 echo -e ""
-echo -e " 浏览器访问以下链接，添加宝塔客服"
-echo -e " https://www.bt.cn/new/wechat_customer"
 echo -e "=================================================================="
 endTime=`date +%s`
 ((outTime=($endTime-$startTime)/60))
