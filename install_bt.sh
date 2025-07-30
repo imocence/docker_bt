@@ -67,8 +67,8 @@ System_Check(){
       fi
     fi
   else
-    VER_ID=$(grep 'VERSION_ID' /etc/os-release | cut -d '"' -f 2)
-    if [ $VER_ID -eq 8 ];then
+    Centos8Check=$(cat /etc/redhat-release | grep ' 8.' | grep -iE 'centos|Red Hat')
+    if [ "${Centos8Check}" ];then
       sudo sed -i 's/mirror.centos.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/yum.repos.d/CentOS-AppStream.repo
       sudo sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-AppStream.repo
       sudo sed -i 's/#baseurl/baseurl/g' /etc/yum.repos.d/CentOS-AppStream.repo
@@ -329,7 +329,7 @@ Set_Firewall(){
 		fi
 	else
 		echo "redhat|centos 系统中设置防火墙"
-		if command -v iptables >/dev/null; then
+		if service --status-all 2>&1 | grep -q "iptables"; then
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 20 -j ACCEPT
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 21 -j ACCEPT
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
@@ -347,7 +347,7 @@ Set_Firewall(){
 			sed -i "s#IPTABLES_MODULES=\"\"#IPTABLES_MODULES=\"ip_conntrack_netbios_ns ip_conntrack_ftp ip_nat_ftp\"#" /etc/sysconfig/iptables-config
 			iptables_status=$(service iptables status | grep 'not running')
 			if [ "${iptables_status}" == '' ];then
-				service iptables restart3
+				service iptables restart
 			fi
 		else
 			AliyunCheck=$(cat /etc/redhat-release|grep "Aliyun Linux")
@@ -363,6 +363,7 @@ Set_Firewall(){
 			firewall-cmd --permanent --zone=public --add-port=39000-40000/tcp > /dev/null 2>&1
 			#firewall-cmd --permanent --zone=public --add-port=39000-40000/udp > /dev/null 2>&1
 			firewall-cmd --reload
+			firewall-cmd --list-ports
 		fi
 	fi
 }
