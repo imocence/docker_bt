@@ -561,7 +561,6 @@ if [ -f "/www/server/panel/data/ipv6.pl" ];then
   getIpAddress="[${getIpAddress}]"
 fi
 
-echo > /www/server/panel/data/bind.pl
 echo -e "=================================================================="
 echo -e "\033[32mCongratulations! Installed successfully!\033[0m"
 echo -e "=============注意：首次打开面板浏览器将提示不安全================="
