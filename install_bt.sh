@@ -54,10 +54,10 @@ System_Check(){
       timedatectl status
     fi
     apt update
-    apt install -y autoconf automake procps wget curl libcurl4-openssl-dev gcc make unzip tar openssl libssl-dev gcc libxml2 libxml2-dev
-    apt install -y zlib1g zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev
-    apt install -y libbz2-dev libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev libzip-dev
-    apt install -y xz-utils git qrencode sqlite3 at mariadb-client rsyslog iproute2 locales libtool m4 libonig5 libsodium23
+    apt install -y autoconf automake procps wget curl libcurl4-openssl-dev gcc make unzip tar openssl libssl-dev gcc libxml2 libxml2-dev \
+    zlib1g zlib1g-dev libjpeg-dev libpng-dev lsof libpcre3 libpcre3-dev cron net-tools swig build-essential libffi-dev libbz2-dev \
+    libncurses-dev libsqlite3-dev libreadline-dev tk-dev libgdbm-dev libdb-dev libdb++-dev libpcap-dev libzip-dev xz-utils git \
+    qrencode sqlite3 at mariadb-client rsyslog iproute2 locales libtool m4 libonig5 libsodium23
     if [ ! -d '/etc/letsencrypt' ];then
       mkdir -p /etc/letsencryp
       mkdir -p /var/spool/cron
@@ -83,9 +83,9 @@ System_Check(){
       sed -i "s|mirror.centos.org/centos/\$releasever|mirrors.tuna.tsinghua.edu.cn/centos-vault/$RELEASE_VER|g" /etc/yum.repos.d/CentOS-Base.repo
     fi
     yum makecache
-    yum install -y bzip2-devel c-ares crontabs db4-devel freetype gcc gdbm-devel icu iproute libcurl-devel libffi-devel libicu-devel
-    yum install -y libjpeg-devel libpcap-devel libpng-devel libwebp libxml2 libxslt* lsof make mariadb ncurses-devel net-tools
-    yum install -y openssl pcre qrencode readline-devel rsyslog sqlite-devel tk-devel unzip vixie-cron wget xz-devel zlib zlib-devel
+    yum install -y bzip2-devel c-ares crontabs db4-devel freetype gcc gdbm-devel icu iproute libcurl-devel libffi-devel libicu-devel \
+    libjpeg-devel libpcap-devel libpng-devel libwebp libxml2 libxslt* lsof make mariadb ncurses-devel net-tools openssl pcre php-zip \
+    php-fileinfo qrencode readline-devel rsyslog sqlite-devel tk-devel unzip vixie-cron wget xz-devel zlib zlib-devel
     yum clean all
   fi
   echo "========================== Check LNMP environment =========================="
@@ -319,7 +319,7 @@ Set_Firewall(){
 			apt-get remove nftables -y
 		fi
 		apt-get install -y ufw
-		ufw allow 20/tcp 21/tcp 22/tcp 80/tcp 443/tcp 888/tcp ${panelPort}/tcp ${sshPort}/tcp 39000:40000/tcp
+		ufw allow 20/tcp 21/tcp 22/tcp 80/tcp 443/tcp 888/tcp 3306/tcp ${panelPort}/tcp ${sshPort}/tcp 39000:40000/tcp
 		ufw_status=`ufw status`
 		echo y|ufw enable
 		ufw default deny
@@ -335,6 +335,7 @@ Set_Firewall(){
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${panelPort} -j ACCEPT
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport ${sshPort} -j ACCEPT
 			iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport 39000:40000 -j ACCEPT
@@ -358,7 +359,7 @@ Set_Firewall(){
 			systemctl start firewalld
 			firewall-cmd --set-default-zone=public > /dev/null 2>&1
 			firewall-cmd --permanent --zone=public --add-port=20/tcp --add-port=21/tcp --add-port=22/tcp > /dev/null 2>&1
-			firewall-cmd --permanent --zone=public --add-port=80/tcp --add-port=443/tcp > /dev/null 2>&1
+			firewall-cmd --permanent --zone=public --add-port=80/tcp --add-port=443/tcp --add-port=3306/tcp > /dev/null 2>&1
 			firewall-cmd --permanent --zone=public --add-port=${panelPort}/tcp --add-port=${sshPort}/tcp > /dev/null 2>&1
 			firewall-cmd --permanent --zone=public --add-port=39000-40000/tcp > /dev/null 2>&1
 			#firewall-cmd --permanent --zone=public --add-port=39000-40000/udp > /dev/null 2>&1
